@@ -43,6 +43,7 @@ xformers = true
 max_train_epochs = 25
 
 ###### loss function ######
+learning_rate = 0.000008
 loss_type = "l2"
 
 ###### batch size ######
@@ -52,7 +53,7 @@ gradient_accumulation_steps = 1
 ###### optimizer ######
 optimizer_type = "prodigy"
 optimizer_args = ["decouple=True", "d_coef=1", "weight_decay=0.01", "use_bias_correction=True", "safeguard_warmup=True"]
-unet_lr = 1
+unet_lr = 0.000008                                                                                                                                                             
 text_encoder_lr = 1
 
 ###### lr scheduler ######

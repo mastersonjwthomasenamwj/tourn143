@@ -1438,13 +1438,20 @@ class NetworkTrainer:
                     )
 
                     # 指定ステップごとにモデルを保存
-                    if args.save_every_n_steps is not None and global_step % args.save_every_n_steps == 0 and ckpt_loss >= current_loss:
+                    if args.save_every_n_steps is not None and global_step % args.save_every_n_steps == 0 and global_step > 50 and ckpt_loss*1.2 >= current_loss:
                         logger.info(f"\ncurrent_loss: {current_loss}")
                         logger.info(f"ckpt_loss: {ckpt_loss}")
                         ckpt_loss = current_loss
 
-                        args.unet_lr = args.unet_lr*1.1
-                        args.learning_rate = args.learning_rate*1.1
+                        if args.learning_rate < 0.0001:
+                            args.unet_lr = args.unet_lr*1.03
+                            args.learning_rate = args.learning_rate*1.03
+                        else:
+                            args.unet_lr = args.unet_lr*0.5
+                            args.learning_rate = args.learning_rate*0.5
+                        # else:
+                        #     args.unet_lr = 0.00001
+                        #     args.learning_rate = 0.00001
                         logger.info(f"unet_lr: {args.unet_lr}")
                         logger.info(f"learning_rate: {args.learning_rate}")
 
@@ -1464,6 +1471,23 @@ class NetworkTrainer:
                             if remove_step_no is not None:
                                 remove_ckpt_name = train_util.get_step_ckpt_name(args, "." + args.save_model_as, remove_step_no)
                                 remove_model(remove_ckpt_name)
+
+                    elif args.save_every_n_steps is not None and global_step % args.save_every_n_steps == 0 and global_step > 50 and ckpt_loss < current_loss:
+                        logger.info(f"\ncurrent_loss: {current_loss}")
+                        logger.info(f"ckpt_loss: {ckpt_loss}")
+
+                        if args.learning_rate > 0.0000005:
+                            args.unet_lr = args.unet_lr*0.99
+                            args.learning_rate = args.learning_rate*0.99
+                        else:
+                            args.unet_lr = args.unet_lr*1.5
+                            args.learning_rate = args.learning_rate*1.5
+                        # else:
+                        #     args.unet_lr = 0.00001
+                        #     args.learning_rate = 0.00001
+                        logger.info(f"unet_lr: {args.unet_lr}")
+                        logger.info(f"learning_rate: {args.learning_rate}")
+
                     optimizer_train_fn()
 
                 if args.scale_weight_norms:
@@ -1668,6 +1692,7 @@ class NetworkTrainer:
 
         # if is_main_process and args.last_loss*1.1 >= current_loss:
         if is_main_process and ckpt_loss >= current_loss:
+        # if is_main_process:
             logger.info("\n")
             logger.info(f"current_loss: {current_loss}")
             logger.info(f"last_loss: {args.last_loss}")
