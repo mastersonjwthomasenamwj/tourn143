@@ -1695,7 +1695,7 @@ class NetworkTrainer:
         # if is_main_process:
             logger.info("\n")
             logger.info(f"current_loss: {current_loss}")
-            logger.info(f"last_loss: {args.last_loss}")
+            logger.info(f"last_loss: {ckpt_loss}")
 
             ckpt_name = train_util.get_last_ckpt_name(args, "." + args.save_model_as)
             save_model(ckpt_name, network, global_step, num_train_epochs, force_sync_upload=True)
